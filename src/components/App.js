@@ -1,39 +1,54 @@
 import React, { useState, useEffect } from "react";
+import Header from "./Header";
+import DogSummary from "./DogSummary";
+
+// ┌ └ ─ ├ │
+// App
+// ├ Header
+// │  ├ Filter
+// │  └ DogBar
+// └ DogSummary
 
 function App() {
+  const noPup = { name: "", image: "", isGoodDog: true };
+
   const [pups, setPups] = useState([]);
-  const [selectedDog, setSelectedDog] = useState(0);
-  const dogInfo = {
-    name: pups[selectedDog].name,
-    image: pups[selectedDog].image,
-    isGoodDog: pups[selectedDog].isGoodDog,
-  };
+  const [selectedPup, setSelectedPup] = useState(noPup);
+  const [isFiltering, setIsFiltering] = useState(false);
 
   useEffect(() => {
     fetch("http://localhost:3001/pups")
       .then((r) => r.json())
-      .then((pups) => setPups(pups));
+      .then((pups) => {
+        setPups(pups);
+        setSelectedPup(pups[0]);
+      });
   }, []);
 
-  console.log("Pups", pups);
+  const handleChangeFiltering = () => {
+    setIsFiltering((wasFiltering) => !wasFiltering);
+  };
+  const handleUpdatePup = (updatedPup) => {
+    const updatedPups = pups.map((pup) =>
+      pup.id === updatedPup.id ? updatedPup : pup
+    );
+    setPups(updatedPups);
+    setSelectedPup(updatedPup); // LKF Don't think I should have to do this.  Need useEffect?
+  };
+
+  const handleSelectedPup = (pup) => {
+    setSelectedPup(pup);
+  };
+
   return (
     <div className="App">
-      <div id="filter-div">
-        <button id="good-dog-filter">Filter good dogs: OFF</button>
-      </div>
-      <div id="dog-bar">
-        {pups.map((pup) => (
-          <span>{pup.name}</span>
-        ))}
-      </div>
-      <div id="dog-summary-container">
-        <h1>DOGGO:</h1>
-        <div id="dog-info">
-          <img src={dogInfo.image} alt={dogInfo.name} />
-          <h2>{dogInfo.name}</h2>
-          <button>{dogInfo.isGoodDog ? "Good Dog!" : "Bad Dog!"}</button>
-        </div>
-      </div>
+      <Header
+        pups={pups}
+        onSelectedPup={handleSelectedPup}
+        isFiltering={isFiltering}
+        onChangeFiltering={handleChangeFiltering}
+      />
+      <DogSummary pup={selectedPup} onUpdatedPup={handleUpdatePup} />
     </div>
   );
 }

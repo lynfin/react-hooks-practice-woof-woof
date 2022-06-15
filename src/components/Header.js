@@ -6,6 +6,8 @@ function Header({ pups, onSelectedPup, isFiltering, onChangeFiltering }) {
     ? "Filter good dogs: ON"
     : "Filter good dogs: OFF";
 
+  const filteredPups = isFiltering ? pups.filter((pup) => pup.isGoodDog) : pups;
+  console.log("Filtered count", filteredPups.length);
   return (
     <>
       <div id="filter-div">
@@ -14,7 +16,7 @@ function Header({ pups, onSelectedPup, isFiltering, onChangeFiltering }) {
         </button>
       </div>
       <div id="dog-bar">
-        {pups.map((pup) => (
+        {filteredPups.map((pup) => (
           <DogButton pup={pup} onSelectedPup={onSelectedPup} key={pup.id} />
         ))}
       </div>
